@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<meta sec:authorize="isFullyAuthenticated()" th:if="${_csrf}" name="_csrf" th:content="${_csrf.token}"/>
+<meta sec:authorize="isFullyAuthenticated()" th:if="${_csrf}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+<meta sec:authorize="isFullyAuthenticated()" th:if="${_csrf}" name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .fieldError {
+            color: #bd2130;
+            text-align: center;
+        }
+        .form-group {
+            display:flex;
+
+
+        }
+        .form-control{
+            text-align: center;
+            width: 300px;
+            margin-left:10px;
+            justify-content:center;
+            align-items: center;
+        }
+        h2{
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .signUpForm {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            margin-right:32%;
+        }
+    </style>
+</th:block>
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            var errorMessage = [[${errorMessage}]];
+            if(errorMessage != null){
+                alert(errorMessage);
+            }
+        });
+
+    </script>
+</th:block>
+<div layout:fragment="content">
+    <h2>회원가입</h2>
+    <p style="text-align:center;">*필수 입력 사항입니다.</p>
+
+        <form action="/members/new" role="form" method="post"
+          th:object="${memberFormDto}">
+            <div  class="signUpForm">
+                <div class="form-group">
+                    <label th:for="memberId">*ID</label>
+                    <input type="text" th:field="*{memberId}" class="form-control"
+                           placeholder="아이디를 입력하세요">
+                </div>
+                <p th:if="${#fields.hasErrors('memberId')}"
+                   th:errors="*{memberId}" class="fieldError">Incorrect data</p>
+                <div class="form-group" style="flex;">
+                    <label th:for="memberPassword">*PW</label>
+                    <input id="pwd" type="password" th:field="*{memberPassword}" class="form-control"
+                           placeholder="비밀번호를 입력하세요">
+                </div>
+                <p th:if="${#fields.hasErrors('memberPassword')}"
+                   th:errors="*{memberPassword}" class="fieldError">Incorrect data</p>
+                <div class="form-group">
+                    <label th:for="memberPasswordCheck">*PW 확인</label>
+                    <input id="pwdConfirm" type="password" th:field="*{memberPasswordCheck}" class="form-control"
+                           placeholder="비밀번호를 다시 입력하세요">
+                </div>
+                <p th:if="${#fields.hasErrors('memberPasswordCheck')}"
+                   th:errors="*{memberPasswordCheck}" class="fieldError">Incorrect data</p>
+                <div class="form-group">
+                    <label th:for="memberName">*이름</label>
+                    <input type="text" th:field="*{memberName}" class="form-control"
+                           placeholder="이름을 입력하세요">
+                </div>
+                <p th:if="${#fields.hasErrors('memberName')}"
+                   th:errors="*{memberName}" class="fieldError">Incorrect data</p>
+                <div class="form-group">
+                    <label th:for="memberEmail">*email</label>
+                    <input type="email" th:field="*{memberEmail}" class="form-control"
+                           placeholder="이메일을 입력하세요">
+                </div>
+                <p th:if="${#fields.hasErrors('memberEmail')}"
+                   th:errors="*{memberEmail}" class="fieldError">Incorrect data</p>
+            </div>
+        <div style="text-align: center">
+            <button type="submit" class="btn btn-primary">회원가입</button>
+        </div>
+    </form>
+</div>
+</html>

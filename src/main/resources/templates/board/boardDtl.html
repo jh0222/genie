@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            $("#count").change( function(){
+                calculateToalPrice();
+            });
+        });
+
+        function updateComment(boardId) {
+            location.href = '/user/board/update/' + boardId;
+        }
+
+        function deleteBoard(boardId) {
+            var url = "/userandadmin/board/delete/" + boardId;
+            var paramData = {
+                boardId : boardId,
+            };
+
+            var param = JSON.stringify(paramData);
+
+            if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+
+                $.ajax({
+                    url      : url,
+                    type     : "POST",
+                    contentType : "application/json",
+                    data     : param,
+                    dataType : "json",
+                    cache   : false,
+                    success  : function(result, status){
+                        alert("게시글이 삭제 되었습니다.");
+                        location.href='/';
+                    },
+                    error : function(jqXHR, status, error){
+                        if(jqXHR.status == '401'){
+                            alert('로그인 후 이용해주세요');
+                            location.href='/members/login';
+                        } else{
+                            alert(jqXHR.responseText);
+                        }
+                    }
+                });
+            }else{   //취소
+                return false;
+            }
+        }
+
+         function deleteComment(commentId){
+            var boardId = document.getElementById('boardId').value;
+
+            var url = "/admin/comment/delete/" + commentId;
+            var paramData = {
+                commentId : commentId,
+            };
+
+            var param = JSON.stringify(paramData);
+
+            if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+                $.ajax({
+                    url : url,
+                    type : "POST",
+                    contentType : "application/json",
+                    data : param,
+                    dataType : "json",
+                    cache : false,
+                    success : function(result, status){
+                        alert("답글이 삭제되었습니다.");
+                        location.href='/board/' + boardId;
+                    },
+                    error : function(jqXHR, status, error){
+                        if(jqXHR.status == '401'){
+                            alert('로그인 후 이용해주세요');
+                            location.href='/members/login';
+                        } else{
+                            alert(jqXHR.responseText);
+                        }
+                    }
+                });
+            }else{   //취소
+                return false;
+            }
+        }
+    </script>
+</th:block>
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .mgb-15{
+            margin-bottom:15px;
+        }
+        .mgt-30{
+            margin-top:30px;
+        }
+        .mgt-50{
+            margin-top:50px;
+        }
+        .repImgDiv{
+            margin-right:15px;
+            height:auto;
+            width:50%;
+        }
+        .repImg{
+            width:100%;
+            height:400px;
+        }
+        .wd50{
+            height:auto;
+            width:50%;
+        }
+        hr {
+          background-color : navy;
+        }
+        .comment{
+            border: 2px solid navy;
+            background:rgb(0, 0, 108, 0.6);
+            border-radius: 10px;
+        }
+        .comment_content{
+            margin: 10px 10px 10px 0;
+
+        }
+        #commentId{
+            border: 2px solid navy;
+            background-color:navy;
+            color:white;
+            border-radius: 10px;
+            width:30px;
+            height:30px;
+            position:absolute;
+            right: 330px;
+            margin-top:10px;
+        }
+        img{
+            margin: 10px 10px 10px 10px;
+            width:30px;
+            height:30px;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content" style="margin-left:25%;margin-right:25%">
+
+    <h1 th:text="${board.boardTitle}"></h1>
+    <div style="display:flex;">
+        작성자 :&nbsp;<p th:text="${board.member.memberId}"></p>&nbsp;
+        조회수 :&nbsp;<p th:text="${board.boardCount}"></p>&nbsp;
+        등록일자 :&nbsp;<p th:text="${#temporals.format(board.createdTime, 'yyyy-MM-dd')}"></p>
+        <div style="margin-left:auto;" class="form-inline justify-content-center">
+            <button th:if="${loginIdCk_member == 1}" class="btn btn-primary" th:onclick="|location.href='@{'/user/board/update/'+ ${board.id}}'|">수정</button>
+            <button style="margin-left:10px;" th:if="${loginIdCk_genie == 1 || loginIdCk_member == 1}" class="btn btn-primary" th:value="${board.id}" onclick="deleteBoard(this.value)">삭제</button>
+        </div>
+        <input id="boardId" th:value="${board.id}" type="hidden">
+
+    </div>
+
+    <hr>
+    <p th:text="${board.boardContent}"></p>
+
+    <div class="form-inline justify-content-center" th:if="${#strings.isEmpty(commentFormDto.commentContent)}" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+        <form role="form" method="post" th:object="${commentFormDto}">
+            <textarea style="width:510px; margin-right:10px;" class="form-control" placeholder="답글을 입력해주세요" aria-label="With textarea" th:field="*{commentContent}"></textarea>
+            <button style="height:60px;"class="btn btn-primary" th:formaction="@{'/admin/comment/new/' + ${board.id}}" type="submit">답글 등록</button>
+            <p th:if="${#fields.hasErrors('commentContent')}" th:errors="*{commentContent}" class="fieldError">Incorrect data</p>
+        </form>
+    </div>
+
+    <div class="comment" style="display:flex;" th:if="${not #strings.isEmpty(commentFormDto.commentContent)}">
+        <img src="/img/genie.png">
+        <p class="comment_content" th:text="${commentFormDto.commentContent}"></p>
+        <button style="float: right 1;" id="commentId" th:value="${commentFormDto.id}" onclick=deleteComment(this.value)
+                sec:authorize="hasAnyAuthority('ROLE_ADMIN')">x</button>
+    </div>
+</div>
+</html>

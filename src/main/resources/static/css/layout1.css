@@ -1,0 +1,42 @@
+html{
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+}
+body{
+    min-height: 100%;
+}
+.footer{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    padding 15px 0;
+    text-align: center;
+}
+.content{
+    margin-bottom:100px;
+    margin-top: 50px;
+    margin-left: 200px;
+    margin-right: 200px;
+}
+.btn.btn-primary{
+    background-color: navy;
+    border: 1px solid navy;
+}
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: navy;
+    border-color: navy;
+}
+.navbar{
+    background-color:navy !important;
+}
+span{
+    color:navy;
+}
+a{
+    color:navy;
+}

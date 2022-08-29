@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            var errorMessage = [[${errorMessage}]];
+            if(errorMessage != null){
+                alert(errorMessage);
+            }
+        });
+    </script>
+
+</th:block>
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .h2 {
+
+        }
+        .input-group {
+            margin-bottom : 15px
+        }
+        #content {
+            height: 220px;
+        }
+        .img-div {
+            margin-bottom : 10px
+        }
+        .fieldError {
+            color: #bd2130;
+        }
+    </style>
+</th:block>
+<div layout:fragment="content">
+    <form role="form" method="post" th:object="${boardFormDto}">
+
+        <p class="h2">
+            게시판 등록하기
+        </p>
+
+        <input type="hidden" th:field="*{id}">
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">제목</span>
+            </div>
+            <input type="text" th:field="*{boardTitle}" class="form-control" placeholder="제목을 입력해주세요">
+        </div>
+        <p th:if="${#fields.hasErrors('boardTitle')}" th:errors="*{boardTitle}" class="fieldError">Incorrect data</p>
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">내용</span>
+            </div>
+            <textarea id="content" class="form-control" placeholder="내용을 입력해주세요" aria-label="With textarea" th:field="*{boardContent}"></textarea>
+        </div>
+        <p th:if="${#fields.hasErrors('boardContent')}" th:errors="*{boardContent}" class="fieldError">Incorrect data</p>
+
+        <div th:if="${#strings.isEmpty(boardFormDto.id)}" style="text-align: center">
+            <button th:formaction="@{/user/board/new}" type="submit" class="btn btn-primary">글 작성하기</button>
+        </div>
+        <div th:unless="${#strings.isEmpty(boardFormDto.id)}" style="text-align: center">
+            <button th:formaction="@{'/user/board/update/' + ${boardFormDto.id} }" type="submit" class="btn btn-primary">글 수정하기</button>
+        </div>
+
+    </form>
+</div>
+</html>
